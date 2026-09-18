@@ -1,0 +1,903 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eco-STEM | Cuidado Inteligenter Para Un Mundo Más Verde</title>
+  <meta name="description" content="Plataforma de cuidado inteligente de plantas con IA e IoT." />
+  <!-- ============================================================
+       ECO-STEM — Cuidado Inteligente para un mundo más verde
+       Versión: 1.0.0  |  Fecha: 2026
+       Autor:Eco-STEM 
+       © 2026 Eco-STEM Todos los derechos reservados.
+  ============================================================ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- MODAL DE PAGO -->
+  <div class="payment-modal-overlay" id="paymentModal">
+    <div class="payment-modal-box">
+      <button class="payment-modal-close" onclick="closePaymentModal()">&#x2715;</button>
+      <div id="paymentFormView">
+        <div class="payment-modal-plan" id="paymentModalPlan">
+          <span class="payment-modal-plan-icon" id="modalPlanIcon">&#11088;</span>
+          <div>
+            <p class="payment-modal-plan-name" id="modalPlanName">Plan Semestral</p>
+            <p class="payment-modal-plan-price" id="modalPlanPrice">$3.99 / 6 meses</p>
+          </div>
+        </div>
+        <div class="payment-trial-note">&#127873; Incluye 7 días de prueba gratuita sin cargos</div>
+        <p class="payment-modal-error hidden" id="paymentError">Por favor completa todos los campos.</p>
+        <p class="payment-section-title">&#128100; Datos de cuenta</p>
+        <div class="payment-row">
+          <div class="payment-field"><label>Nombre</label><input type="text" id="payName" placeholder="María" /></div>
+          <div class="payment-field"><label>Apellido</label><input type="text" id="payLastname" placeholder="López" /></div>
+        </div>
+        <div class="payment-field"><label>Correo electrónico</label><input type="email" id="payEmail" placeholder="maria@correo.com" /></div>
+        <div class="payment-field"><label>Contraseña para tu cuenta</label><input type="password" id="payPassword" placeholder="Mínimo 6 caracteres" /></div>
+        <p class="payment-section-title" style="margin-top:20px">&#128179; Datos de pago</p>
+        <div class="payment-card-icons payment-method-grid">
+          <button type="button" class="payment-card-icon selected" data-payment-method="visa">VISA</button>
+          <button type="button" class="payment-card-icon" data-payment-method="mastercard">MC</button>
+          <button type="button" class="payment-card-icon" data-payment-method="amex">AMEX</button>
+          <button type="button" class="payment-card-icon" data-payment-method="discover">DISC</button>
+          <button type="button" class="payment-card-icon" data-payment-method="jcb">JCB</button>
+        </div>
+        <div class="payment-field"><label>Número de tarjeta</label><input type="text" id="payCard" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCardNumber(this)" /></div>
+        <div class="payment-row">
+          <div class="payment-field"><label>Vencimiento</label><input type="text" id="payExpiry" placeholder="MM/AA" maxlength="5" oninput="formatExpiry(this)" /></div>
+          <div class="payment-field"><label>CVV</label><input type="text" id="payCVV" placeholder="123" maxlength="4" /></div>
+        </div>
+        <div class="payment-field"><label>Nombre en la tarjeta</label><input type="text" id="payCardName" placeholder="MARIA LOPEZ" /></div>
+        <button class="btn-primary btn-glow btn-full" style="margin-top:20px;padding:14px" onclick="processPayment()">&#128274; Completar Compra</button>
+        <p class="payment-security-note">&#128274; Pago seguro cifrado con SSL</p>
+      </div>
+      <div id="paymentSuccessView" class="hidden">
+        <div style="text-align:center;padding:20px 0">
+          <div style="font-size:64px;margin-bottom:16px">&#127881;</div>
+          <h3 style="font-size:22px;font-weight:800;color:var(--green);margin-bottom:10px">¡Compra exitosa!</h3>
+          <p id="paymentSuccessMsg" style="color:var(--muted);font-size:14px;line-height:1.7"></p>
+          <button class="btn-primary btn-glow" style="margin-top:24px;padding:12px 32px" onclick="closePaymentModal()">Comenzar ahora &rarr;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE UBICACION -->
+  <div class="consent-modal-overlay" id="locationConsentModal" aria-hidden="true">
+    <div class="consent-modal-box" role="dialog" aria-modal="true" aria-labelledby="locationConsentTitle">
+      <button class="payment-modal-close" type="button" onclick="closeLocationConsentModal()" aria-label="Cerrar">&#x2715;</button>
+      <div class="consent-modal-badge">&#128205; Permiso de ubicación exacta</div>
+      <h3 id="locationConsentTitle">¿Deseas compartir tu ubicacion exacta?</h3>
+      <p class="consent-modal-copy">
+        Eco-STEM puede usar tu ubicacion exacta para ajustar el terreno estimado, el clima local, la elevación y las recomendaciones del panel IoT.
+        Tu decides si permitirlo o continuar sin compartirla.
+      </p>
+      <ul class="consent-modal-list">
+        <li>&#10003; Mejora las recomendaciones según tu zona actual</li>
+        <li>&#10003; Ajusta humedad, temperatura y terreno con más precisión</li>
+        <li>&#10003; Puedes rechazar el permiso y seguir usando lA en la plataforma</li>
+      </ul>
+      <div class="consent-modal-actions">
+        <button class="btn-outline" type="button" onclick="closeLocationConsentModal(true)">Ahora no</button>
+        <button class="btn-primary btn-glow" type="button" onclick="confirmExactLocation()">Permitir ubicacion exacta</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+
+    <!-- LOGO + NOMBRE -->
+    <a href="#home" class="nav-logo" onclick="scrollToSection('home')">
+      <img 
+        src="assets/logo-ecostem.png" 
+        alt="Eco-STEM" 
+        class="nav-logo-img"
+      />
+      <span>
+        <span class="green">Eco</span>-STEM
+      </span>
+    </a>
+
+    <!-- MENÚ HAMBURGUESA -->
+    <button 
+      class="hamburger" 
+      id="hamburger"
+      onclick="toggleMenu()"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- MENÚ -->
+    <div class="nav-links" id="navLinks">
+
+      <a onclick="scrollToSection('home')">
+        Inicio
+      </a>
+      <a onclick="scrollToSection('analyzer')">
+        Analizador IA
+      </a>
+       <a onclick="scrollToSection('assistant')">
+        Asistente IA
+
+      <a onclick="scrollToSection('dashboard')">
+        Panel IoT
+      </a>
+      <a onclick="scrollToSection('planner')">
+        Recomendador
+      </a>
+      <a onclick="scrollToSection('membership')">
+        Membresía
+      </a>
+      <a onclick="scrollToSection('about')">
+        Nosotros
+      </a>
+      <a onclick="scrollToSection('contact')">
+        Contacto
+      </a>
+      <button 
+        class="btn-primary menu-start"
+        onclick="scrollToSection('auth')"
+      >
+        Registrarse
+      </button>
+    </div>
+  </div>
+</nav>
+
+  <!-- HERO / PÁGINA PRINCIPAL -->
+<section id="home" class="hero">
+
+  <div class="hero-bg-slideshow">
+    <div class="hero-bg-slide slide-1"></div>
+    <div class="hero-bg-slide slide-2"></div>
+    <div class="hero-bg-slide slide-3"></div>
+  </div>
+
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+
+    <!-- SOLO EL LOGO -->
+    <div class="hero-logo-wrapper">
+      <img 
+        src="assets/logo-ecostem.png"
+        alt="Eco-STEM"
+        class="hero-logo-img"
+      />
+    </div>
+
+    <p class="hero-desc">
+      Descubre una nueva forma de cuidar tus plantas combinando inteligencia artificial e IoT.
+      Eco-STEM monitorea sus necesidades, te brinda información útil y te ayuda a utilizar los
+      recursos de manera más eficiente. Innovación, naturaleza y sostenibilidad en un solo lugar.
+    </p>
+
+    <div class="hero-buttons">
+      <button class="btn-primary btn-glow" type="button" onclick="scrollToSection('about')">
+        Más información
+      </button>
+    </div>
+
+  </div>
+
+</section>
+
+  <!-- ANALIZADOR IA -->
+  <section id="analyzer" class="section grid-bg">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="badge badge-cyan">Análisis con Red Neuronal</div>
+        <h2>Analizador de Plantas <span class="gradient-text">con IA</span></h2>
+        <p>Sube una foto de tu planta y recibe al instante un análisis de salud potenciado por inteligencia artificial.</p>
+        <div id="analysisCounter" class="counter-badge green-badge">&#10003; <span id="remainingText">Análisis ilimitados disponibles</span></div>
+      </div>
+      <div class="analyzer-grid">
+        <div class="reveal">
+          <div class="upload-zone" id="uploadZone" onclick="triggerUpload()" ondrop="handleDrop(event)" ondragover="event.preventDefault()">
+            <div id="uploadPlaceholder">
+              <div class="upload-icon">&#128228;</div>
+              <p class="upload-title">Subir Imagen de la Planta</p>
+              <p class="upload-hint">Arrastra y suelta o haz clic para explorar</p>
+              <p class="upload-formats">Compatible con JPG, PNG, WebP. Puedes subir hasta 3 imagenes por analisis.</p>
+            </div>
+            <img id="uploadedImage" class="uploaded-img hidden" alt="Planta" />
+            <div id="imageOverlay" class="image-overlay hidden">
+              <button class="change-btn" onclick="resetAnalyzer(event)">Cambiar</button>
+              <p class="image-ready" id="imageReadyText">&#10003; Imagen cargada - lista para analizar</p>
+            </div>
+          </div>
+          <div id="selectedImagesGallery" class="selected-images-gallery hidden"></div>
+          <input type="file" id="fileInput" accept="image/*" multiple class="hidden" onchange="handleFileSelect(event)" />
+          <button id="analyzeBtn" class="btn-primary btn-glow btn-full mt-4" onclick="analyzeImage()" disabled>Analizar Planta</button>
+          <div id="progressBar" class="progress-container hidden">
+            <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+            <span id="progressText">0%</span>
+          </div>
+          <div id="limitWarning" class="alert-warning hidden">
+            <div class="alert-icon">&#9888;</div>
+            <p class="alert-title">Analizador listo para demostración</p>
+            <p class="alert-desc">El análisis quedó habilitado para uso ilimitado durante la presentación.</p>
+            <button class="btn-orange" onclick="scrollToSection('membership')">Ver Membresías</button>
+          </div>
+        </div>
+        <div class="reveal" id="resultsPanel">
+          <div class="results-placeholder" id="resultsPlaceholder">
+            <div class="placeholder-icon">&#127807;</div>
+            <p>Los resultados del análisis aparecerán aquí</p>
+            <small>Sube una imagen y haz clic en Analizar</small>
+          </div>
+          <div id="analysisResult" class="analysis-result hidden"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ASISTENTE IA -->
+  <section id="assistant" class="section grid-bg">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="badge badge-green">Asistente Inteligente</div>
+        <h2>Asistente <span class="gradient-text">IA Vegetal</span></h2>
+        <p>Haz cualquier pregunta sobre el cuidado de tus plantas y recibe respuestas inteligentes al instante.</p>
+      </div>
+      <div class="chat-container reveal">
+        <div class="chat-header">
+          <div class="chat-avatar">&#129302;</div>
+          <div>
+            <p class="chat-name">Asistente Eco-STEM</p>
+            <p class="chat-status"><span class="status-dot-sm"></span> En línea</p>
+          </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="msg ai-msg">
+            <div class="msg-avatar ai-avatar">&#129302;</div>
+            <div class="msg-bubble ai-bubble">
+              <p>¡Hola! Soy tu Asistente de Plantas IA de Eco-STEM. Puedo ayudarte con preguntas sobre riego, luz solar, nutrientes, enfermedades, plagas y cuidado general de tus plantas. ¿En qué puedo ayudarte hoy?</p>
+              <span class="msg-time" id="initTime"></span>
+            </div>
+          </div>
+        </div>
+        <div class="chat-suggestions" id="chatSuggestions">
+          <button onclick="sendSuggestion('¿Cuándo debo regar mis plantas?')">¿Cuándo regar mis plantas?</button>
+          <button onclick="sendSuggestion('¿Por qué se ponen amarillas las hojas?')">¿Hojas amarillas?</button>
+          <button onclick="sendSuggestion('¿Cómo eliminar plagas de forma natural?')">Eliminar plagas</button>
+          <button onclick="sendSuggestion('¿Qué fertilizante usar en primavera?')">Fertilizante ideal</button>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" id="chatInput" placeholder="Escribe tu pregunta sobre plantas..." onkeydown="if(event.key==='Enter') sendMessage()" />
+          <button class="send-btn" onclick="sendMessage()">&#10148;</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD IoT -->
+  <section id="dashboard" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="badge badge-blue">Sensores IoT en Tiempo Real</div>
+        <h2>Panel de <span class="gradient-text-blue">Monitoreo</span></h2>
+        <p>Monitorea las condiciones ambientales de tus plantas en tiempo real mediante sensores IoT inteligentes.</p>
+      </div>
+      <div class="status-bar reveal">
+        <div class="status-left">
+          <span class="status-dot"></span>
+          Sensores conectados — Última actualización: <span class="text-green" id="lastUpdate">--:--:--</span>
+        </div>
+        <button class="btn-outline-sm iot-action-btn" onclick="simulateSensors()">
+          <span id="refreshIcon">&#128260;</span>
+          <span>Simular Lectura</span>
+          <span class="inline-loader hidden" id="iotInlineLoader" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="location-panel reveal">
+        <div class="location-panel-copy">
+          <h3>Ubicacion exacta y contexto del terreno</h3>
+          <p id="locationPermissionLabel">Activa el permiso del navegador para ajustar recomendaciones segun coordenadas reales, elevacion y zona.</p>
+        </div>
+        <button class="btn-primary" id="locationBtn" type="button" onclick="requestExactLocation()">Activar ubicacion exacta</button>
+      </div>
+      <div class="location-grid reveal">
+        <div class="mini-location-card">
+          <span class="mini-label">Zona detectada</span>
+          <strong id="locationStatus">Ubicacion general no compartida</strong>
+        </div>
+        <div class="mini-location-card">
+          <span class="mini-label">Coordenadas</span>
+          <strong id="coordsStatus">Sin coordenadas</strong>
+        </div>
+        <div class="mini-location-card">
+          <span class="mini-label">Terreno estimado</span>
+          <strong id="terrainStatus">Terreno no determinado</strong>
+        </div>
+      </div>
+      <div class="sensors-grid reveal">
+        <div class="sensor-card" id="moistureCard">
+          <div class="sensor-header">
+            <div class="sensor-icon-wrap blue-icon">&#128167;</div>
+            <div><p class="sensor-label">Humedad del Suelo</p><p class="sensor-status" id="moistureStatus">"ptimo</p></div>
+            <div class="sensor-value-wrap"><span class="sensor-value" id="moistureValue">62</span><span class="sensor-unit">%</span></div>
+          </div>
+          <div class="sensor-bar-track"><div class="sensor-bar-fill blue-fill" id="moistureBar" style="width:62%"></div></div>
+        </div>
+        <div class="sensor-card" id="tempCard">
+          <div class="sensor-header">
+            <div class="sensor-icon-wrap orange-icon">&#127777;</div>
+            <div><p class="sensor-label">Temperatura</p><p class="sensor-status" id="tempStatus">Ideal</p></div>
+            <div class="sensor-value-wrap"><span class="sensor-value" id="tempValue">24</span><span class="sensor-unit">°C</span></div>
+          </div>
+          <div class="sensor-bar-track"><div class="sensor-bar-fill orange-fill" id="tempBar" style="width:48%"></div></div>
+        </div>
+        <div class="sensor-card" id="lightCard">
+          <div class="sensor-header">
+            <div class="sensor-icon-wrap yellow-icon">&#9728;</div>
+            <div><p class="sensor-label">Nivel de Luz</p><p class="sensor-status" id="lightStatus">Parcial</p></div>
+            <div class="sensor-value-wrap"><span class="sensor-value" id="lightValue">71</span><span class="sensor-unit">%</span></div>
+          </div>
+          <div class="sensor-bar-track"><div class="sensor-bar-fill yellow-fill" id="lightBar" style="width:71%"></div></div>
+        </div>
+      </div>
+      <div class="chart-card reveal">
+        <div class="chart-header">
+          <span>Historial de Humedad del Suelo</span>
+          <span class="chart-legend"><span class="legend-dot green-dot"></span>Humedad</span>
+        </div>
+        <div class="bar-chart" id="barChart"></div>
+      </div>
+      <div class="recommendations reveal" id="sensorRecommendations">
+        <h4>&#129302; Recomendaciones del Sistema</h4>
+        <p class="text-green">&#10003; Todas las condiciones son óptimas. ¡Tu planta está saludable!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- RECOMENDADOR DE CULTIVO -->
+  <section id="planner" class="section grid-bg">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="badge badge-cyan">Recomendaciones de Siembra Inteligente</div>
+        <h2>Qué <span class="gradient-text">Plantar</span> Según Tu Entorno</h2>
+        <p>Recibe recomendaciones de plantas según tu ubicación, pronóstico, tipo de vivienda, nivel de luz y el objetivo que tengas en mente.</p>
+      </div>
+      <div class="planner-grid">
+        <div class="planner-form-card reveal card-hover">
+          <div class="planner-form-header">
+            <h3>Configura tu espacio</h3>
+            <p>Combina el contexto del lugar con tus preferencias para sugerir plantas más adecuadas.</p>
+          </div>
+          <div class="planner-form-grid">
+            <div class="planner-field">
+              <label for="plannerGoal">¿Qué quieres plantar?</label>
+              <select id="plannerGoal">
+                <option value="any">Cualquier tipo</option>
+                <option value="edible">Alimentos / comestibles</option>
+                <option value="ornamental">Ornamental</option>
+                <option value="flower">Flores</option>
+                <option value="aromatic">Aromáticas / culinarias</option>
+                <option value="medicinal">Medicinales</option>
+              </select>
+            </div>
+            <div class="planner-field">
+              <label for="plannerSpace">Tipo de espacio</label>
+              <select id="plannerSpace">
+                <option value="indoor">Interior</option>
+                <option value="balcony">Balcón o ventana</option>
+                <option value="patio">Patio / terraza</option>
+                <option value="garden">Huerta / jardín</option>
+              </select>
+            </div>
+            <div class="planner-field">
+              <label for="plannerLight">Luz disponible</label>
+              <select id="plannerLight">
+                <option value="medium">Luz media</option>
+                <option value="low">Poca luz</option>
+                <option value="bright">Luz brillante indirecta</option>
+                <option value="direct">Sol directo</option>
+              </select>
+            </div>
+            <div class="planner-field">
+              <label for="plannerCare">Tiempo de cuidado</label>
+              <select id="plannerCare">
+                <option value="easy">Bajo mantenimiento</option>
+                <option value="moderate">Mantenimiento medio</option>
+                <option value="detailed">Estoy dispuesto a cuidarla bastante</option>
+              </select>
+            </div>
+            <div class="planner-field">
+              <label for="plannerExperience">Experiencia</label>
+              <select id="plannerExperience">
+                <option value="beginner">Principiante</option>
+                <option value="intermediate">Intermedio</option>
+                <option value="advanced">Avanzado</option>
+              </select>
+            </div>
+            <div class="planner-field">
+              <label for="plannerForecastBias">Prioridad climática</label>
+              <select id="plannerForecastBias">
+                <option value="balanced">Balance general</option>
+                <option value="rain">Resistentes a lluvia / humedad</option>
+                <option value="heat">Resistentes a calor</option>
+                <option value="cool">Prefieren clima fresco</option>
+              </select>
+            </div>
+          </div>
+          <div class="planner-actions">
+            <button class="btn-primary btn-glow" id="plannerBtn" type="button" onclick="generatePlantRecommendations()">Generar recomendaciones</button>
+            <button class="btn-outline" type="button" onclick="applyLocationToPlanner()">Usar mi ubicación actual</button>
+          </div>
+          <p class="planner-helper" id="plannerHelperText">Puedes usar tu ubicación exacta para sumar terreno, elevación y pronóstico al análisis.</p>
+        </div>
+        <div class="planner-results-card reveal">
+          <div class="planner-results-top">
+            <div>
+              <p class="planner-kicker">Resumen ambiental</p>
+              <h3 id="plannerSummaryTitle">Aún no has generado recomendaciones</h3>
+            </div>
+            <div class="planner-mini-loader hidden" id="plannerLoader" aria-hidden="true"></div>
+          </div>
+          <div class="planner-context-chips" id="plannerContextChips">
+            <span class="planner-chip">Sin ubicación aplicada</span>
+            <span class="planner-chip">Sin pronóstico cargado</span>
+          </div>
+          <div class="planner-forecast-strip" id="plannerForecastStrip">
+            <div class="forecast-card">
+              <strong>Pronóstico</strong>
+              <span>Activa ubicación para incorporar el clima proyectado.</span>
+            </div>
+          </div>
+          <div class="planner-results-list" id="plannerResults">
+            <div class="planner-placeholder">
+              <div class="planner-placeholder-icon">PL</div>
+              <p>Cuando ejecutes el recomendador, aquí verás plantas sugeridas, por qué son adecuadas para tu entorno y cómo empezar su cuidado.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEMBRESÍA -->
+  <section id="membership" class="section grid-bg">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="badge badge-green">&#128081; Planes Flexibles</div>
+        <h2>Elige tu <span class="gradient-text">Membresía</span></h2>
+        <p>Desbloquea el poder completo de Eco-STEM con análisis ilimitados, monitoreo IoT y soporte de IA.</p>
+      </div>
+      <div id="purchaseSuccess" class="purchase-success hidden">
+        <p>&#9989; <strong>¡Compra simulada exitosa!</strong> Regístrate para activar tu plan.</p>
+        <button class="btn-primary" onclick="scrollToSection('auth')">Crear Cuenta</button>
+      </div>
+      <div class="plans-grid">
+        <div class="plan-card reveal card-hover">
+          <div class="plan-icon cyan-icon">&#9889;</div>
+          <h3>Plan Mensual</h3>
+          <p class="plan-desc">Ideal para comenzar a explorar la plataforma</p>
+          <div class="plan-price"><span class="price cyan-price">$1.99</span><span class="period">/mes</span></div>
+          <ul class="plan-features">
+            <li>&#10003; Análisis ilimitados de plantas</li>
+            <li>&#10003; Panel IoT en tiempo real</li>
+            <li>&#10003; Asistente IA básico</li>
+            <li>&#10003; Soporte por correo electrónico</li>
+            <li>&#10003; 1 planta en seguimiento</li>
+          </ul>
+          <button class="btn-cyan btn-full" onclick="openPaymentModal('Plan Mensual','$1.99 / mes','&#9889;')">Adquirir Plan</button>
+        </div>
+        <div class="plan-card plan-featured reveal card-hover">
+          <div class="plan-badge">MÁS POPULAR</div>
+          <div class="plan-icon green-icon">&#11088;</div>
+          <h3>Plan Semestral</h3>
+          <p class="plan-desc">Ahorra $7.95 frente al pago mensual durante 6 meses</p>
+          <div class="plan-price"><span class="price green-price">$3.99</span><span class="period">/6 meses</span></div>
+          <ul class="plan-features">
+            <li>&#10003; Todo lo del Plan Mensual</li>
+            <li>&#10003; Historial de análisis (6 meses)</li>
+            <li>&#10003; Asistente IA avanzado</li>
+            <li>&#10003; Alertas de salud en tiempo real</li>
+            <li>&#10003; Hasta 5 plantas en seguimiento</li>
+            <li>&#10003; Soporte prioritario</li>
+          </ul>
+          <button class="btn-primary btn-glow btn-full" onclick="openPaymentModal('Plan Semestral','$3.99 / 6 meses','&#11088;')">Adquirir Plan</button>
+        </div>
+        <div class="plan-card reveal card-hover">
+          <div class="plan-icon purple-icon">&#128081;</div>
+          <h3>Plan Anual</h3>
+          <p class="plan-desc">Ahorra $17.89 frente al pago mensual durante 12 meses</p>
+          <div class="plan-price"><span class="price purple-price">$5.99</span><span class="period">/año</span></div>
+          <ul class="plan-features">
+            <li>&#10003; Todo lo del Plan Semestral</li>
+            <li>&#10003; Historial ilimitado</li>
+            <li>&#10003; Diagnósticos de enfermedades con IA</li>
+            <li>&#10003; Integración con sensores IoT físicos</li>
+            <li>&#10003; Plantas ilimitadas en seguimiento</li>
+            <li>&#10003; Soporte 24/7</li>
+            <li>&#10003; Acceso anticipado a nuevas funciones</li>
+          </ul>
+          <button class="btn-purple btn-full" onclick="openPaymentModal('Plan Anual','$5.99 / año','&#128081;')">Adquirir Plan</button>
+        </div>
+      </div>
+      <p class="plans-note reveal">Todos los planes incluyen 7 días de prueba gratuita. Sin contratos. Cancela cuando quieras.</p>
+    </div>
+  </section>
+
+  <!-- AUTH -->
+  <section id="auth" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="badge badge-purple">&#128100; Cuenta</div>
+        <h2>Tu <span class="gradient-text-purple">Cuenta</span></h2>
+        <p>Crea tu cuenta o inicia sesión para acceder a todas las funciones premium.</p>
+      </div>
+      <div class="auth-card reveal" id="authCard">
+        <div id="loggedInView" class="hidden">
+          <div class="logged-avatar" id="loggedAvatar">U</div>
+          <h3>¡Sesión Activa!</h3>
+          <p class="logged-user" id="loggedUserName"></p>
+          <p class="logged-plan-status" id="loggedPlanStatus">Plan gratuito</p>
+          <p class="logged-desc">Tienes acceso completo a la plataforma Eco-STEM.</p>
+          <div class="logged-perks">
+            <div class="perk-row"><span>Análisis de Plantas</span><span class="text-green">Ilimitados</span></div>
+            <div class="perk-row"><span>Panel IoT</span><span class="text-green">Activo</span></div>
+            <div class="perk-row"><span>Asistente IA</span><span class="text-green">Disponible</span></div>
+          </div>
+          <button class="btn-outline btn-full" onclick="logout()">Cerrar Sesión</button>
+        </div>
+        <div id="authForm">
+          <div class="auth-tabs">
+            <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">&#128273; Iniciar Sesión</button>
+            <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">&#10024; Registrarse</button>
+          </div>
+          <div class="auth-fields">
+            <div id="typeSelectorWrap" class="hidden">
+              <div class="type-selector">
+                <button class="type-btn active" id="btnEmail" onclick="switchIdentifier('email')">&#128231; Correo</button>
+                <button class="type-btn" id="btnPhone" onclick="switchIdentifier('phone')">&#128241; Teléfono</button>
+              </div>
+            </div>
+            <div class="input-group">
+              <span class="input-icon" id="identifierIcon">&#128231;</span>
+              <input type="email" id="identifierInput" placeholder="Correo electrónico" />
+            </div>
+            <div class="input-group">
+              <span class="input-icon">&#128274;</span>
+              <input type="password" id="passwordInput" placeholder="Contraseña" />
+              <button class="eye-btn" onclick="togglePassword('passwordInput')">&#128065;</button>
+            </div>
+            <div class="input-group hidden" id="confirmWrap">
+              <span class="input-icon">&#128274;</span>
+              <input type="password" id="confirmInput" placeholder="Confirmar contraseña" />
+            </div>
+            <p id="authError" class="auth-error hidden"></p>
+            <p id="authSuccess" class="auth-success hidden"></p>
+            <button class="btn-primary btn-glow btn-full" id="authSubmitBtn" onclick="handleAuth()">Iniciar Sesión</button>
+            <p class="auth-switch" id="authSwitch">¿No tienes cuenta? <a onclick="switchTab('register')">Regístrate gratis</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOBRE NOSOTROS -->
+  <section id="about" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="badge badge-green">&#127807; Sobre Nosotros</div>
+        <h2>Sobre <span class="gradient-text">Eco-STEM</span></h2>
+        <p>Somos una plataforma tecnológica enfocada en el cuidado inteligente de plantas.</p>
+      </div>
+      <div class="about-cards reveal">
+        <div class="about-card card-hover">
+          <div class="about-icon cyan-text">&#129504;</div>
+          <h3>Quiénes Somos</h3>
+          <p>Eco-STEM es un emprendimiento desarrollado por tres estudiantes de Desarrollo de Aplicaciones Móviles. Nuestro equipo combina formación técnica, innovación y enfoque práctico para crear una plataforma que apoye el buen crecimiento de las plantas mediante inteligencia artificial e IoT.</p>
+        </div>
+        <div class="about-card card-hover">
+          <div class="about-icon orange-text">&#9888;</div>
+          <h3>El Problema</h3>
+          <p>Millones de plantas mueren cada año por falta de información adecuada sobre riego, iluminación y nutrientes. Los cuidadores no siempre tienen acceso a diagnósticos profesionales y la información disponible es fragmentada.</p>
+        </div>
+        <div class="about-card card-hover">
+          <div class="about-icon green-text">&#128161;</div>
+          <h3>Nuestra Solución</h3>
+          <p>Eco-STEM provee análisis inteligente de salud vegetal mediante fotografías, monitoreo continuo con sensores IoT, y recomendaciones personalizadas generadas por IA. Todo integrado en una plataforma intuitiva y accesible.</p>
+        </div>
+      </div>
+      <h3 class="sub-title reveal">Nuestros Valores</h3>
+      <div class="values-grid reveal">
+        <div class="value-card card-hover"><div class="value-icon">&#127807;</div><h4>Sostenibilidad</h4><p>Cada decisión considera el impacto medioambiental.</p></div>
+        <div class="value-card card-hover"><div class="value-icon">&#128302;</div><h4>Innovación</h4><p>Aplicamos la última tecnología de IA al cuidado vegetal.</p></div>
+        <div class="value-card card-hover"><div class="value-icon">&#127919;</div><h4>Precisión</h4><p>Diagnósticos con más del 95% de exactitud.</p></div>
+        <div class="value-card card-hover"><div class="value-icon">&#128101;</div><h4>Comunidad</h4><p>Una comunidad global de cuidadores apasionados.</p></div>
+      </div>
+      <h3 class="sub-title reveal">Nuestro Equipo</h3>
+      <div class="team-grid reveal">
+        <div class="team-card card-hover">
+          <div class="team-avatar">A</div>
+          <h4>Sebastián Delgado Sánchez</h4>
+          <p class="team-role">Estudiante del CTP Vázquez de Coronado</p>
+          <p>Estudiante de Desarrollo de Aplicaciones Móviles. Cuenta con certificaciones de Cisco en áreas como IoT, inteligencia artificial, redes, soporte técnico y otras ramas tecnológicas aplicadas al proyecto.</p>
+        </div>
+        <div class="team-card card-hover">
+          <div class="team-avatar">C</div>
+          <h4>Dennisse Gutierrez Barboza</h4>
+          <p class="team-role">Estudiante del CTP Vázquez de Coronado</p>
+          <p>Estudiante de Desarrollo de Aplicaciones Móviles. Aporta conocimientos en redes, soporte técnico y trabajo colaborativo en la construcción e implementación de la solución.</p>
+        </div>
+        <div class="team-card card-hover">
+          <div class="team-avatar">S</div>
+          <h4>Valeria Garita Obando</h4>
+          <p class="team-role">Estudiante del CTP Vázquez de Coronado</p>
+          <p>Estudiante de Desarrollo de Aplicaciones Móviles. Participa en el fortalecimiento del proyecto desde el área técnica y acompañamiento en el desarrollo de la plataforma.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section id="contact" class="section grid-bg">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="badge badge-cyan">&#128235; Contáctanos</div>
+        <h2>¿Cómo <span class="gradient-text">Contactarnos?</span></h2>
+        <p>Estamos aquí para ayudarte. Elige el canal que más te convenga y te responderemos a la brevedad.</p>
+      </div>
+      <div class="contact-grid reveal">
+        <div class="contact-info-col">
+          <div class="contact-item card-hover">
+            <div class="contact-item-icon">&#128231;</div>
+            <div><h4>Correo Electrónico</h4><p>Para consultas generales, soporte técnico o información sobre planes.</p>
+            <a href="mailto:ecostem.cr@gmail.com" class="contact-link">ecostem.cr@gmail.com</a></div>
+          </div>
+          <div class="contact-item card-hover">
+            <div class="contact-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 4.5C9.65 4.5 4.5 9.47 4.5 15.6c0 2.24.69 4.31 1.88 6.03L5 27.5l6.1-1.6a11.77 11.77 0 0 0 4.9 1.05c6.35 0 11.5-4.97 11.5-11.1S22.35 4.5 16 4.5Z" fill="#25D366"/>
+                <path d="M22.52 19.1c-.27-.13-1.62-.79-1.87-.88-.25-.09-.43-.13-.61.13-.18.26-.7.88-.86 1.06-.16.18-.31.2-.58.07-.27-.13-1.13-.41-2.15-1.31-.8-.7-1.34-1.56-1.5-1.82-.16-.26-.02-.4.12-.53.12-.12.27-.31.4-.46.13-.15.18-.26.27-.44.09-.18.04-.33-.02-.46-.07-.13-.61-1.45-.84-1.99-.22-.53-.45-.46-.61-.47h-.52c-.18 0-.46.07-.7.33-.24.26-.92.9-.92 2.19 0 1.29.95 2.54 1.08 2.72.13.18 1.86 2.95 4.59 4.02 2.73 1.07 2.73.71 3.22.67.49-.04 1.62-.64 1.85-1.25.22-.61.22-1.14.16-1.25-.07-.11-.25-.18-.52-.31Z" fill="white"/>
+              </svg>
+            </div>
+            <div><h4>WhatsApp</h4><p>Atención rápida por mensaje. Lunes a viernes, 8am — 6pm.</p>
+            <a href="https://wa.me/50661201940" target="_blank" class="contact-link">+506 6409-8842</a></div>
+          </div>
+          <div class="contact-item card-hover">
+            <div class="contact-item-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="5" y="5" width="22" height="22" rx="7" fill="url(#igGradient)"/>
+                <circle cx="16" cy="16" r="5.2" stroke="white" stroke-width="2.2"/>
+                <circle cx="22.1" cy="9.9" r="1.5" fill="white"/>
+                <defs>
+                  <linearGradient id="igGradient" x1="7" y1="25" x2="25" y2="7" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FEDA75"/>
+                    <stop offset="0.28" stop-color="#FA7E1E"/>
+                    <stop offset="0.55" stop-color="#D62976"/>
+                    <stop offset="0.8" stop-color="#962FBF"/>
+                    <stop offset="1" stop-color="#4F5BD5"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div><h4>Instagram</h4><p>Síguenos para ver avances, novedades del proyecto y contenido del emprendimiento.</p>
+            <a href="https://instagram.com/ecostem.cr" target="_blank" class="contact-link">@ecostem.cr</a></div>
+          </div>
+          <div class="contact-item card-hover">
+            <div class="contact-item-icon">&#128205;</div>
+            <div><h4>Ubicación</h4><p>CTP Vázquez de Coronado<br/>Vázquez de Coronado, San José, Costa Rica</p></div>
+          </div>
+          <div class="contact-item card-hover">
+            <div class="contact-item-icon">&#128336;</div>
+            <div><h4>Horario de Atención</h4><p>Lunes a Viernes: 8:00 am — 6:00 pm<br/>Sábado: 9:00 am — 1:00 pm</p></div>
+          </div>
+        </div>
+        <div class="contact-form-card reveal">
+          <h3>&#9993; Envíanos un Mensaje</h3>
+          <div class="contact-field"><label>Nombre completo</label><input type="text" id="contactName" placeholder="Tu nombre completo" /></div>
+          <div class="contact-field"><label>Correo electrónico</label><input type="email" id="contactEmail" placeholder="tu@correo.com" /></div>
+          <div class="contact-field">
+            <label>Asunto</label>
+            <select id="contactSubject">
+              <option value="">Selecciona un asunto...</option>
+              <option>Soporte técnico</option><option>Consulta sobre planes</option>
+              <option>Reportar un problema</option><option>Colaboración</option><option>Otro</option>
+            </select>
+          </div>
+          <div class="contact-field"><label>Mensaje</label><textarea id="contactMessage" placeholder="Escribe tu mensaje aquí..." rows="4"></textarea></div>
+          <button class="btn-primary btn-glow btn-full" onclick="sendContactForm()">&#128232; Enviar Mensaje</button>
+          <div class="contact-success hidden" id="contactSuccess">&#9989; ¡Mensaje enviado! Te responderemos en menos de 24 horas.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="legal" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="badge badge-blue">&#9878; Seguridad y Legal</div>
+        <h2>Privacidad, <span class="gradient-text-blue">Cookies</span> y Uso Responsable</h2>
+        <p>La plataforma ahora deja visible el manejo de cookies, privacidad, pagos, ubicacion y responsabilidad del analisis.</p>
+      </div>
+      <div class="about-cards reveal">
+        <div class="about-card card-hover">
+          <div class="about-icon cyan-text">&#128274;</div>
+          <h3>Privacidad</h3>
+          <p>Tus datos de cuenta, suscripciones, mensajes y analisis deben almacenarse en backend seguro. En esta demo quedan registrados en almacenamiento local y en el script SQL Server incluido.</p>
+        </div>
+        <div class="about-card card-hover">
+          <div class="about-icon orange-text">&#128205;</div>
+          <h3>Ubicacion</h3>
+          <p>La ubicacion exacta solo se solicita con permiso del usuario. Se usa para mejorar recomendaciones de clima, drenaje, terreno y monitoreo IoT.</p>
+        </div>
+        <div class="about-card card-hover">
+          <div class="about-icon green-text">&#128196;</div>
+          <h3>Analisis y pagos</h3>
+          <p>Los resultados del analizador son orientativos si no hay IA externa conectada. Los pagos reales necesitan pasarela y backend activo; esta version queda lista para conectarlos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <div class="footer-top">
+
+            <!-- MARCA -->
+            <div class="footer-brand">
+
+                <div class="footer-logo">
+                    <img src="assets/logo-ecostem.png" alt="Eco-STEM">
+
+                    <span>
+                        <span class="green">Eco</span>-STEM
+                    </span>
+                </div>
+
+                <p class="footer-slogan">
+                    Cuidado Inteligente para un Mundo más Verde
+                </p>
+
+                <p class="footer-desc">
+                    Eco-STEM combina inteligencia artificial y tecnología IoT
+                    para revolucionar el cuidado de plantas y contribuir a un
+                    planeta más verde.
+                </p>
+
+                <div class="footer-socials">
+                  <a href="#" class="social-btn" aria-label="Instagram">IG</a>
+                  <a href="#" class="social-btn" aria-label="LinkedIn">in</a>
+                  <a href="#" class="social-btn" aria-label="GitHub">&lt;&gt;</a>
+                  <a href="#" class="social-btn" aria-label="Correo electrónico">@</a>
+                </div>
+
+            </div>
+
+            <!-- PLATAFORMA -->
+            <div class="footer-column">
+                <h3>Plataforma</h3>
+                <a href="#">Analizador IA</a>
+                <a href="#">Panel IoT</a>
+                <a href="#">Asistente IA</a>
+                <a href="#">Membresías</a>
+            </div>
+
+            <!-- EMPRESA -->
+            <div class="footer-column">
+                <h3>Empresa</h3>
+                <a href="#">Sobre Nosotros</a>
+                <a href="#">Equipo</a>
+                <a href="#">Blog</a>
+                <a href="#">Prensa</a>
+            </div>
+
+            <!-- SOPORTE -->
+            <div class="footer-column">
+                <h3>Soporte</h3>
+                <a href="#">Centro de Ayuda</a>
+                <a href="#">Documentación</a>
+                <a href="#">Comunidad</a>
+                <a href="#">Contacto</a>
+            </div>
+
+            <!-- LEGAL -->
+            <div class="footer-column">
+                <h3>Legal</h3>
+                <a href="#">Términos de Uso</a>
+                <a href="#">Privacidad</a>
+                <a href="#">Cookies</a>
+                <a href="#">RGPD</a>
+            </div>
+
+        </div>
+
+    </div>
+
+</footer>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col"><h4>Plataforma</h4><a href="#">Analizador IA</a><a href="#">Panel IoT</a><a href="#">Asistente IA</a><a href="#">Membresías</a></div>
+          <div class="footer-col"><h4>Empresa</h4><a href="#">Sobre Nosotros</a><a href="#">Equipo</a><a href="#">Blog</a><a href="#">Prensa</a></div>
+          <div class="footer-col"><h4>Soporte</h4><a href="#">Centro de Ayuda</a><a href="#">Documentación</a><a href="#">Comunidad</a><a onclick="scrollToSection('contact')" style="cursor:pointer">Contacto</a></div>
+          <div class="footer-col"><h4>Legal</h4><a onclick="scrollToSection('legal')" style="cursor:pointer">Términos de Uso</a><a onclick="scrollToSection('legal')" style="cursor:pointer">Privacidad</a><a onclick="scrollToSection('legal')" style="cursor:pointer">Cookies</a><a onclick="scrollToSection('legal')" style="cursor:pointer">RGPD</a></div>
+        </div>
+      </div>
+      <div class="footer-newsletter">
+        <div><h4>Mantente actualizado</h4><p>Recibe las últimas novedades sobre IA y tecnología vegetal.</p></div>
+        <div class="newsletter-form">
+          <input type="email" id="newsletterEmail" placeholder="tu@correo.com" />
+          <button class="btn-primary btn-glow" id="newsletterBtn" onclick="subscribeNewsletter()">Suscribirse</button>
+        </div>
+        <p class="newsletter-status hidden" id="newsletterStatus"></p>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Eco-STEM. Todos los derechos reservados. Construido con &#9829; para un planeta más verde.</p>
+        <p class="footer-version"><span class="status-dot-sm"></span> Plataforma de Agricultura Inteligente v2.0 <span id="cookieStatus">Cookies pendientes</span></p>
+      </div>
+    </div>
+  </footer>
+
+<div class="cookie-consent-overlay hidden" id="cookieOverlay">
+    <div class="cookie-banner" id="cookieBanner" role="dialog" aria-modal="true" aria-labelledby="cookieConsentTitle">
+      <div class="cookie-header">
+        <div>
+          <span class="cookie-eyebrow">Aviso legal obligatorio</span>
+          <h3 id="cookieConsentTitle">Términos, condiciones, privacidad y uso de cookies</h3>
+        </div>
+        <span class="cookie-required">Aceptación requerida</span>
+      </div>
+      <p class="cookie-intro">
+        Para continuar en Eco-STEM debes aceptar los términos de uso, la política de privacidad y la política de cookies.
+        Sin esta aceptación no se habilitarán las funciones de análisis, panel IoT, chatbot, registro, inicio de sesión ni suscripciones.
+      </p>
+      <div class="cookie-terms-card">
+        <div class="cookie-term-item">
+          <strong>1. Uso de la plataforma</strong>
+          <p>Eco-STEM ofrece análisis vegetal, monitoreo y asistencia informativa. Las recomendaciones no sustituyen asesoría agronómica o médica profesional.</p>
+        </div>
+        <div class="cookie-term-item">
+          <strong>2. Privacidad de datos</strong>
+          <p>Podemos procesar datos de cuenta, imágenes, mensajes, suscripciones y ubicación cuando el usuario lo autoriza para mejorar la precisión del servicio.</p>
+        </div>
+        <div class="cookie-term-item">
+          <strong>3. Cookies esenciales</strong>
+          <p>Usamos cookies y almacenamiento local para sesión, seguridad, preferencias, consentimiento legal y continuidad de uso dentro de la plataforma.</p>
+        </div>
+        <div class="cookie-term-item">
+          <strong>4. Ubicación y permisos</strong>
+          <p>La ubicación exacta solo se usa si el usuario la aprueba expresamente desde el navegador. Puede negarse sin compartir coordenadas.</p>
+        </div>
+        <div class="cookie-term-item">
+          <strong>5. Pagos y suscripciones</strong>
+          <p>Las compras, membresías y datos asociados deben validarse con el backend y los proveedores configurados. La información legal y comercial queda sujeta al plan adquirido.</p>
+        </div>
+      </div>
+      <label class="cookie-check">
+        <input type="checkbox" id="cookieTermsCheck" onchange="updateCookieAcceptState()" />
+        <span>He leído y acepto los términos y condiciones, la política de privacidad y el uso de cookies de Eco-STEM.</span>
+      </label>
+      <p class="cookie-warning">Debes aceptar este aviso para continuar usando la plataforma.</p>
+      <div class="cookie-actions">
+        <button class="btn-outline" type="button" onclick="scrollToSection('legal')">Leer sección legal</button>
+        <button class="btn-outline cookie-decline-btn" type="button" onclick="rejectCookieConsent()">No aceptar</button>
+        <button class="btn-primary btn-glow cookie-accept-btn" id="cookieAcceptBtn" type="button" onclick="setCookieConsent('accepted')" disabled>
+          <span id="cookieAcceptText">Aceptar y continuar</span>
+          <span class="inline-loader hidden" id="cookieAcceptLoader" aria-hidden="true"></span>
+        </button>
+      </div>
+      <p class="cookie-footer-note">Si no aceptas, la plataforma permanecerá bloqueada y no podrás usar sus funciones.</p>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurations xmlns="http://www.netbeans.org/ns/clientside-project/1">
+    <config name="default">
+        <browser>Google Chrome</browser>
+        <start.file>index.html</start.file>
+        <web.server>INTERNAL</web.server>
+    </config>
+</configurations>
