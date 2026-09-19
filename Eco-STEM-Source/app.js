@@ -2086,7 +2086,7 @@ function addMessage(role, text) {
   const node = document.createElement('div');
   node.className = `msg ${role === 'user' ? 'user-msg' : 'ai-msg'} fade-in`;
   node.innerHTML = `
-    <div class="msg-avatar ${role === 'user' ? 'user-avatar-icon' : 'ai-avatar'}">${role === 'user' ? 'TU' : 'AI'}</div>
+    <div class="msg-avatar ${role === 'user' ? 'user-avatar-icon' : 'ai-avatar'}">${role === 'user' ? 'TU' : '<img class="robot-avatar-image" src="assets/Robot_IA.png?v=2" alt="Asistente IA">'}</div>
     <div class="msg-bubble ${role === 'user' ? 'user-bubble' : 'ai-bubble'}">
       <p>${sanitizeHtml(text)}</p>
       <span class="msg-time">${time}</span>
@@ -2101,7 +2101,7 @@ function showTyping() {
   const node = document.createElement('div');
   node.id = 'typingIndicator';
   node.className = 'msg fade-in';
-  node.innerHTML = '<div class="msg-avatar ai-avatar">AI</div><div class="msg-bubble ai-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+  node.innerHTML = '<div class="msg-avatar ai-avatar"><img class="robot-avatar-image" src="assets/Robot_IA.png?v=2" alt="Asistente IA"></div><div class="msg-bubble ai-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
   container.appendChild(node);
   container.scrollTop = container.scrollHeight;
 }
